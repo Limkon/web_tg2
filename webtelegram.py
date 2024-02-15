@@ -6,14 +6,10 @@ from selenium.webdriver.common.action_chains import ActionChains
 import os
 import time
 
-# Get the latest ChromeDriver version
-chromedriver_version = '109.0.5414.74'
-
-# Construct the ChromeDriver path
-chromedriver_path = f'/usr/local/bin/chromedriver_{chromedriver_version}'
-
-# Create a new Chrome browser instance
-browser = webdriver.Chrome(executable_path=chromedriver_path)
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.binary_location = '/usr/bin/google-chrome'
+browser = webdriver.Chrome(options=options)
 
 browser.get('https://web.telegram.org/')
 
@@ -46,21 +42,3 @@ li_nput = WebDriverWait(browser, 60).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.page_wrap > div.im_page_wrap.clearfix.im_page_peer_not_selected > div > div.im_dialogs_col_wrap.noselect > div.im_dialogs_col > div > div.im_dialogs_scrollable_wrap.nano-content > ul > li:nth-child(3)"))
         )
 li_nput.click()
-
-# #下拉列
-#
-# la_nput = WebDriverWait(browser, 60).until(
-#             EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.page_wrap > div.im_page_wrap.clearfix > div > div.im_history_col_wrap.noselect.im_history_loaded > div.im_history_selected_wrap > div > div.im_history_wrap.nano.has-scrollbar.active-scrollbar > div.nano-pane > div"))
-#         )
-# ActionChains(browser).move_to_element(la_nput).perform()
-#
-# #下拉
-# for i in range(6):
-#     browser.execute_script("window.scrollTo(0,document.body.scrollHeight);var lenOfPage=document.body.srollHeight;return lenOfPage;")
-#     time.sleep(5)
-# print("2222222222222222")
-# js="var q=document.documentElement.scrollTop=10000"
-# browser.execute_script(js)
-#
-# time.sleep(60)
-#print(browser.page_source)
