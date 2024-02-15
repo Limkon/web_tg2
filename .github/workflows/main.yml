@@ -65,4 +65,4 @@ jobs:
           pip install selenium
           pip install requests
       - name: Build web
-        run: python ./tools/webtelegram.py
+        run: python webtelegram.py
