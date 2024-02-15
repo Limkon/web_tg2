@@ -53,7 +53,7 @@ jobs:
       - name: Install ChromeDriver
         if: steps.cache-chrome.outputs.cache-hit != true
         run: |
-          curl -fsSL https://chromedriver.storage.googleapis.com/109.0.5414.74/chromedriver_linux64.zip -o chromedriver_linux64.zip
+          curl -fsSL https://chromedriver.storage.googleapis.com/<CURRENT_VERSION>/chromedriver_linux64.zip -o chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/local/bin/chromedriver
       - name: Set up Python
@@ -65,4 +65,5 @@ jobs:
           pip install selenium
           pip install requests
       - name: Build web
-        run: python webtelegram.py
+        run: |
+          python webtelegram.py
