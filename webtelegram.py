@@ -1,69 +1,39 @@
-name: login webtelegram
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-on:
-  schedule:
-    - cron: '5 * */10 * *'
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to run the workflow on'
-        required: true
-        default: 'main'
+options = webdriver.ChromeOptions()
+options.binary_location = '/usr/bin/google-chrome'
+options.add_argument('--headless')
+browser = webdriver.Chrome(options=options)
+browser.implicitly_wait(30)
 
-jobs:
-  send-message:
-    runs-on: ubuntu-latest
+browser.get('https://web.telegram.org/')
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-      - name: Cache Chrome and ChromeDriver
-        id: cache-chrome
-        uses: actions/cache@v3
-        with:
-          path: |
-            google-chrome-stable_current_amd64.deb
-            chromedriver_linux64.zip
-            /usr/local/bin/chromedriver
-          key: ${{ runner.os }}-chrome-cache-${{ hashFiles('google-chrome-stable_current_amd64.deb') }}-${{ hashFiles('chromedriver_linux64.zip') }}-${{ hashFiles('/usr/local/bin/chromedriver') }}
-      - name: Get cache size
-        id: cache-size
-        run: |
-          cache_size=$(du -sh $GITHUB_WORKSPACE | awk '{print $1}')
-          echo "Cache size: $cache_size"
-          echo "size=$cache_size" >> $GITHUB_ENV
-      - name: Clear cache if size > 1GB
-        if: steps.cache-size.outputs.size >= '1G'
-        run: |
-          echo "Cache size is greater than 1GB. Clearing cache..."
-          actions/cache@v3
-          with:
-            path: |
-              google-chrome-stable_current_amd64.deb
-              chromedriver_linux64.zip
-              /usr/local/bin/chromedriver
-            key: ${{ runner.os }}-chrome-cache-${{ hashFiles('google-chrome-stable_current_amd64.deb') }}-${{ hashFiles('chromedriver_linux64.zip') }}-${{ hashFiles('/usr/local/bin/chromedriver') }}
-            restore-keys: |
-              ${{ runner.os }}-chrome-cache-
-      - name: Install Chrome
-        if: steps.cache-chrome.outputs.cache-hit != true
-        run: |
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo dpkg -i google-chrome-stable_current_amd64.deb
-      - name: Install ChromeDriver
-        if: steps.cache-chrome.outputs.cache-hit != true
-        run: |
-          curl -fsSL https://chromedriver.storage.googleapis.com/121.0.6167.184/chromedriver_linux64.zip -o chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/chromedriver
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install Dependencies
-        run: |
-          pip install selenium
-          pip install requests
-      - name: Build web
-        run: |
-          python webtelegram.py
+user_nput = WebDriverWait(browser, 20).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.page_wrap > div > div.login_page > div.login_form_wrap > form > div.login_phone_groups_wrap.clearfix > div.md-input-group.login_phone_num_input_group.md-input-animated > input"))
+        )
+user_nput.send_keys("13551753935")
+time.sleep(5)
+
+country_nput = WebDriverWait(browser, 20).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.page_wrap > div > div.login_page > div.login_form_wrap > form > div.login_phone_groups_wrap.clearfix > div.md-input-group.login_phone_code_input_group.md-input-has-value.md-input-animated > input"))
+        )
+country_nput.clear()
+country_nput.send_keys("+86")
+
+next_sub = browser.find_element_by_css_selector("body > div.page_wrap > div > div.login_page > div.login_head_wrap.clearfix > div > a")
+
+next_sub.click()
+ok_click = WebDriverWait(browser, 20).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.modal.fade.confirm_modal_window.in > div.modal-dialog > div > div > div.md_simple_modal_footer > button.btn.btn-md.btn-md-primary > span"))
+        )
+ok_click.click()
+
+li_nput = WebDriverWait(browser, 60).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "body > div.page_wrap > div.im_page_wrap.clearfix.im_page_peer_not_selected > div > div.im_dialogs_col_wrap.noselect > div.im_dialogs_col > div > div.im_dialogs_scrollable_wrap.nano-content > ul > li:nth-child(3)"))
+        )
+li_nput.click()
+
+browser.close()
