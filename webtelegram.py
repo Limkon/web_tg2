@@ -1,4 +1,3 @@
-# -*-coding:utf-8-*-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -7,12 +6,14 @@ from selenium.webdriver.common.action_chains import ActionChains
 import os
 import time
 
-#code
+# Get the latest ChromeDriver version
+chromedriver_version = '109.0.5414.74'
 
-# chromedriver = r"F:\chromedriver_win32\chromedriver"
-# os.environ["webdriver.chrome.driver"] = chromedriver
-# browser = webdriver.Chrome(chromedriver)
-browser = webdriver.Chrome()
+# Construct the ChromeDriver path
+chromedriver_path = f'/usr/local/bin/chromedriver_{chromedriver_version}'
+
+# Create a new Chrome browser instance
+browser = webdriver.Chrome(executable_path=chromedriver_path)
 
 browser.get('https://web.telegram.org/')
 
@@ -63,7 +64,3 @@ li_nput.click()
 #
 # time.sleep(60)
 #print(browser.page_source)
-
-
-#time.sleep(6)
-# print(browser.page_source)
