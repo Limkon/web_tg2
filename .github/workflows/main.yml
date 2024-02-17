@@ -1,69 +1,48 @@
-name: login webtelegram
+name: Send Random Message to Telegram Friend
 
+# Controls when the action will run.
 on:
-  schedule:
-    - cron: '5 * */10 * *'
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to run the workflow on'
-        required: true
-        default: 'main'
+  # The workflow will run on the push of commits to the main branch.
+  push:
+    branches: [ main ]
 
+  # Schedule to run everyday at 10:00 AM UTC
+  schedule:
+    - cron: '0 10 * * *'
+
+# A job is a set of tasks that are executed together.
 jobs:
   send-message:
+    # The type of runner the job will run on
     runs-on: ubuntu-latest
 
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-      - name: Cache Chrome and ChromeDriver
-        id: cache-chrome
-        uses: actions/cache@v3
-        with:
-          path: |
-            google-chrome-stable_current_amd64.deb
-            chromedriver_linux64.zip
-            /usr/local/bin/chromedriver
-          key: ${{ runner.os }}-chrome-cache-${{ hashFiles('google-chrome-stable_current_amd64.deb') }}-${{ hashFiles('chromedriver_linux64.zip') }}-${{ hashFiles('/usr/local/bin/chromedriver') }}
-      - name: Get cache size
-        id: cache-size
-        run: |
-          cache_size=$(du -sh $GITHUB_WORKSPACE | awk '{print $1}')
-          echo "Cache size: $cache_size"
-          echo "size=$cache_size" >> $GITHUB_ENV
-      - name: Clear cache if size > 1GB
-        if: steps.cache-size.outputs.size >= '1G'
-        run: |
-          echo "Cache size is greater than 1GB. Clearing cache..."
-          actions/cache@v3
-          with:
-            path: |
-              google-chrome-stable_current_amd64.deb
-              chromedriver_linux64.zip
-              /usr/local/bin/chromedriver
-            key: ${{ runner.os }}-chrome-cache-${{ hashFiles('google-chrome-stable_current_amd64.deb') }}-${{ hashFiles('chromedriver_linux64.zip') }}-${{ hashFiles('/usr/local/bin/chromedriver') }}
-            restore-keys: |
-              ${{ runner.os }}-chrome-cache-
-      - name: Install Chrome
-        if: steps.cache-chrome.outputs.cache-hit != true
-        run: |
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo dpkg -i google-chrome-stable_current_amd64.deb
-      - name: Install ChromeDriver
-        if: steps.cache-chrome.outputs.cache-hit != true
-        run: |
-          curl -fsSL https://chromedriver.storage.googleapis.com/121.0.6167.184/chromedriver_linux64.zip -o chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/chromedriver
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Install Python and required packages.
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
-      - name: Install Dependencies
+          python-version: '3.10'
+
+      # Telegram API.
+      - name: Send Telegram Message
+        env:
+          BOT_TOKEN: ${{ secrets.YOUR_BOT_TOKEN }}
+          USER_ID: ${{ secrets.YOUR_FRIEND'S_ID }}
+          MESSAGE_FILE: message.txt
         run: |
-          pip install selenium
-          pip install requests
-      - name: Build web
-        run: |
-          python webtelegram.py
+          import random
+          import requests
+
+          # Generate a random message.
+          with open(f'./{MESSAGE_FILE}', 'r') as f:
+            messages = f.read().splitlines()
+          message = random.choice(messages)
+
+          # Send the message to your friend.
+          url = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
+          data = {'chat_id': USER_ID, 'text': message}
+          requests.post(url, data=data)
