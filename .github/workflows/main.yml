@@ -1,53 +1,30 @@
 name: Send Random Message to Telegram Friend
 
-# Controls when the action will run.
 on:
-  
   workflow_dispatch:
-
-  # Schedule to run everyday at 10:00 AM UTC
   schedule:
     - cron: '0 10 * * *'
 
-# A job is a set of tasks that are executed together.
 jobs:
   send-message:
-    # The type of runner the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      # Install Python and required packages.
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: '3.10'
-      
-      # Set up xvfb
-      - name: Set up xvfb
-        uses: docker://bitnami/xvfb
-        with:
-          args: ['-screen', '0', '1280x1024x24']
-      
-      # Telegram API.
-      - name: Send Telegram Message
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Run Python script
         env:
           BOT_TOKEN: ${{ secrets.YOUR_BOT_TOKEN }}
           USER_ID: ${{ secrets.YOUR_FRIEND_ID }}
-          MESSAGE_FILE: message.txt
         run: |
-          import random
-          import requests
-
-          # Generate a random message.
-          with open(f'./{MESSAGE_FILE}', 'r') as f:
-            messages = f.read().splitlines()
-          message = random.choice(messages)
-
-          # Send the message to your friend.
-          url = f'https://api.telegram.org/bot{BOT_TOKEN}/sendMessage'
-          data = {'chat_id': USER_ID, 'text': message}
-          requests.post(url, data=data)
+          python send_telegram_message.py
