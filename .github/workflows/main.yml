@@ -31,7 +31,7 @@ jobs:
       - name: Send Telegram Message
         env:
           BOT_TOKEN: ${{ secrets.YOUR_BOT_TOKEN }}
-          USER_ID: ${{ secrets.YOUR_FRIEND'S_ID }}
+          USER_ID: ${{ secrets.YOUR_FRIEND_ID }}
           MESSAGE_FILE: message.txt
         run: |
           import random
